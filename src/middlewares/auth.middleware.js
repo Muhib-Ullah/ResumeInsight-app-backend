@@ -24,13 +24,31 @@ export const loginMiddleware = (req, res, next) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const { email, password } = req.body; 
 
-    //Validation checks before proceeding with user login
+    //Login User Middleware Validation Checks
     if(!email || !password) {
         return res.status(400).json(errorResponse('Please fill in all mandatory fields'));
     }
+    
     if (!emailRegex.test(email)) {
         return res.status(400).json(errorResponse('Invalid email address. Please check and try again'));
     }
 
     next();
+}
+
+export const authenticationMiddleware = (req, res, next) => {
+    //Verify JWT Token for validation and authentication of user
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json(errorResponse('Authorization header missing or malformed'));
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decodedToken;
+        next();
+    } catch (error) {
+        return res.status(401).json(errorResponse('Invalid or expired token'));
+    }
 }

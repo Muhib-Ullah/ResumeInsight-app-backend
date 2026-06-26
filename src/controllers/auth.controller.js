@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from '../utils/api.response.js';
 export const registerUser = async (req, res) => {
     try{
         //Call Service layer after successfully validating the request body using middleware
+        const { email, name, password } = req.body;
         const serviceResponse = await registerUserService({ email, name, password });
         if(!serviceResponse.status) {
             return res.status(400).json(errorResponse(serviceResponse.message));
@@ -18,7 +19,8 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     try {        
         //Call Service layer after successfully validating the request body using middleware
-        const serviceResponse = await loginUserService(email, password);
+        const { email, password } = req.body;
+        const serviceResponse = await loginUserService({ email, password });
         if(!serviceResponse.status) {
             return res.status(401).json(errorResponse(serviceResponse.message));
         }
