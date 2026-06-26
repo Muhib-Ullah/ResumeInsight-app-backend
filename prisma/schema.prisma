@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model HR {
+  hrId     String         @id @default(uuid())
+  name      String
+  email     String        @unique
+  password  String
+  jobs      Job[]
+  createdAt DateTime      @default(now())
+}
+
+model Job {
+  jobId       String      @id @default(uuid())
+  title       String
+  description String
+  deadline    DateTime
+  token       String      @unique @default(uuid())
+  status      String      @default("open")
+  hr          HR          @relation(fields: [hrId], references: [hrId])
+  hrId        String
+  applicants  Applicant[]
+  createdAt   DateTime    @default(now())
+}
+
+model Applicant {
+  applicantId String      @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  resumeText  String
+  matchScore  Int?
+  evaluation  Json?
+  job         Job         @relation(fields: [jobId], references: [jobId])
+  jobId       String
+  createdAt   DateTime    @default(now())
+}
