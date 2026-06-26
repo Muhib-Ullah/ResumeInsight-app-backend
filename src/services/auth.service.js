@@ -24,7 +24,7 @@ export const registerUserService = async (userData) => {
 export const loginUserService = async (email, password) => {
     const existingUser = await prisma.hR.findUnique({ where: { email } });
     if (!existingUser) {
-        return {status: false, message: 'Invalid email address. Please check and try again'};
+        return {status: false, message: 'User not found. Please check and try again'};
     }
 
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
