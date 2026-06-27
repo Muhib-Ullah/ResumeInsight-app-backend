@@ -5,7 +5,6 @@ export const registerMiddleware = (req, res, next) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const { email, name, password } = req.body;
 
-    // Register User Middleware Validation Checks
     if(!email || !name || !password) {
         return res.status(400).json(errorResponse('Please fill in all mandatory fields'));
     }
@@ -25,7 +24,6 @@ export const loginMiddleware = (req, res, next) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const { email, password } = req.body; 
 
-    //Login User Middleware Validation Checks
     if(!email || !password) {
         return res.status(400).json(errorResponse('Please fill in all mandatory fields'));
     }
@@ -38,7 +36,6 @@ export const loginMiddleware = (req, res, next) => {
 }
 
 export const authenticationMiddleware = (req, res, next) => {
-    //Verify JWT Token for validation and authentication of user
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json(errorResponse('Authorization header missing or malformed'));
@@ -48,7 +45,6 @@ export const authenticationMiddleware = (req, res, next) => {
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decodedToken;
-       
         next();
     } catch (error) {
         return res.status(401).json(errorResponse('Invalid or expired token'));

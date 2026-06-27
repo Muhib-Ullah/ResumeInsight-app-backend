@@ -1,4 +1,5 @@
 import prisma from '../utils/prisma.js';
+import { evaluateWithGroq } from './evaluate.service.js';
 
 export const createJobService = async (jobData) => {
     const existingJob = await prisma.job.findFirst({ where: { title: jobData.title, hrId: jobData.hrId, status: 'open' } });
@@ -29,10 +30,35 @@ export const getAllJobsService = async (hrData) => {
 }
 
 export const getJobByIdService = async (jobData) => {
-    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: true } });
+    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: true }});
     if(!job) {
         return {status: false, message: 'Job not found or is not active'};
     }
     const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${job.token}`; 
     return { status: true, data: { ...job, applicant_link } };
+}
+
+export const evaluateApplicants = async (dbData) => {
+    const job = await prisma.job.findFirst({ where : { jobId: dbData.jobId, hrId: dbData.hrId }});
+    const applicants = await prisma.applicant.findMany({ where : { jobId : dbData.jobId, matchScore: null }});
+
+    if(!job) { return {status: false, message: "Job not found"} }
+    if(applicants.length == 0) { return {status: false, message: "No applicants to evaluate for this job"} }
+
+    const evaluatedApplicants = await Promise.all(
+        applicants.map((applicant) => {
+            const evaluateServiceResponse = await evaluateWithGroq(applicant.resumeText, job.description);
+            if(!evaluateServiceResponse.status) { return applicant }
+
+            return await prisma.applicant.update({ where: {applicantId: applicant.applicantId },
+                data: {
+                    matchScore: evaluateServiceResponse.data.matchScore,
+                    evaluation: evaluateServiceResponse.data
+                }
+            });
+        })
+    );
+
+    const rankedApplicants = evaluatedApplicants.sort((a, b) => b.matchScore - a.matchScore);
+    return { status: true, data: rankedApplicants };
 }

@@ -3,7 +3,6 @@ import { successResponse, errorResponse } from '../utils/api.response.js';
     
 export const registerUser = async (req, res) => {
     try{
-        //Call Service layer after successfully validating the request body using middleware
         const { email, name, password } = req.body;
         const serviceResponse = await registerUserService({ email, name, password });
         if(!serviceResponse.status) {
@@ -18,7 +17,6 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
     try {        
-        //Call Service layer after successfully validating the request body using middleware
         const { email, password } = req.body;
         const serviceResponse = await loginUserService({ email, password });
         if(!serviceResponse.status) {

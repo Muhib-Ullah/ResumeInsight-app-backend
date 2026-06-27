@@ -1,4 +1,3 @@
-// Response Handler Utility Functions
 export const successResponse = (message, data = null) => {
     return {
         status : true,
