@@ -4,7 +4,7 @@ import { errorResponse, successResponse } from '../utils/api.response.js';
 export const createJob = async (req, res) => {
     try{
         //Call Service layer after successfully validating the request body using middleware
-        const { title, description, deadline} = req.body;
+        const { title, description, deadline } = req.body;
         const {hrId} = req.user; 
         
         const serviceResponse = await createJobService({ title, description, deadline, hrId });
