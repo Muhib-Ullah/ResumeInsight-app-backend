@@ -16,7 +16,7 @@ export const createJobService = async (jobData) => {
         }
     });
 
-    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${newJob.jobId}`;
+    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${newJob.token}`;
     return { status: true, data: { ...newJob, applicant_link } };
 }
 
@@ -33,6 +33,6 @@ export const getJobByIdService = async (jobData) => {
     if(!job) {
         return {status: false, message: 'Job not found or is not active'};
     }
-    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${job.jobId}`; 
+    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${job.token}`; 
     return { status: true, data: { ...job, applicant_link } };
 }

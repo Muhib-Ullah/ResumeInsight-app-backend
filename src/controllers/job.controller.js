@@ -6,6 +6,7 @@ export const createJob = async (req, res) => {
         //Call Service layer after successfully validating the request body using middleware
         const { title, description, deadline} = req.body;
         const {hrId} = req.user; 
+        
         const serviceResponse = await createJobService({ title, description, deadline, hrId });
 
         if(!serviceResponse.status) {
