@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { errorResponse } from "../utils/api.response.js";
 
 export const registerMiddleware = (req, res, next) => {
@@ -47,6 +48,7 @@ export const authenticationMiddleware = (req, res, next) => {
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decodedToken;
+       
         next();
     } catch (error) {
         return res.status(401).json(errorResponse('Invalid or expired token'));
