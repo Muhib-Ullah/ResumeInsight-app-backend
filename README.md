@@ -1,5 +1,5 @@
-# ResumeInsight V2 | Hiring Automation Backend
-
+# ResumeInsight | Backend Repository
+ 
 A RESTful backend API built with Node.js, Express, and PostgreSQL to automate first-round hiring. HR users manage job postings with shareable apply links, candidates submit resumes without creating an account, and the system batch evaluates all resumes using AI to rank applicants automatically.
 
 ## Tech Stack
