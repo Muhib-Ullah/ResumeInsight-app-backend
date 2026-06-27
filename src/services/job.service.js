@@ -16,7 +16,8 @@ export const createJobService = async (jobData) => {
         }
     });
 
-    return { status: true, data: newJob };
+    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${newJob.jobId}`;
+    return { status: true, data: { ...newJob, applicant_link } };
 }
 
 export const getAllJobsService = async (hrData) => {
@@ -31,6 +32,7 @@ export const getJobByIdService = async (jobData) => {
     const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: true } });
     if(!job) {
         return {status: false, message: 'Job not found or is not active'};
-    } 
-    return { status: true, data: job };
+    }
+    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${job.jobId}`; 
+    return { status: true, data: { ...job, applicant_link } };
 }
