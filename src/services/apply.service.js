@@ -27,13 +27,13 @@ export const applyForJobService = async (applicantData) => {
     const job = await prisma.job.findUnique({ where: { token: applicantData.token } });
     const exstingApplicant = await prisma.applicant.findFirst({ where: {email: applicantData.email, jobId: job.jobId}})
 
+    if (!job) return { status: false, message: 'Invalid or expired apply link' };
     if (exstingApplicant) {
         return { status: false, message: 'You have already applied for this job' };
     } else {
         if (job.status !== 'open') {
             return { status: false, message: 'Job is not open for applications' };
         }
-
         if (new Date() > job.deadline) {
             return { status: false, message: 'Application deadline has passed' };
         }
@@ -44,8 +44,7 @@ export const applyForJobService = async (applicantData) => {
                 email: applicantData.email,
                 phone: applicantData.phone,
                 resumeText: applicantData.resume_text,
-                jobId: job.jobId,
-                createdAt: new Date()
+                jobId: job.jobId
             }
         });
 

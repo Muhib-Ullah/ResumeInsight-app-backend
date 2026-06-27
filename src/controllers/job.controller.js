@@ -1,4 +1,4 @@
-import { createJobService, getAllJobsService, getJobByIdService } from '../services/job.service.js';
+import { createJobService, getAllJobsService, getJobByIdService, evaluateApplicants } from '../services/job.service.js';
 import { errorResponse, successResponse } from '../utils/api.response.js';
 
 export const createJob = async (req, res) => {
@@ -45,7 +45,23 @@ export const getJobById = async (req, res) => {
             return res.status(200).json(successResponse('Job fetched successfully', serviceResponse.data));
         }
     } catch (error) {
-        console.error('Error in getJobById:', error);
         res.status(500).json(errorResponse('An error occurred while fetching the job'));
+    }
+}
+
+export const evaluateApplicantByJob = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const { hrId } = req.user;
+        const serviceResponse = await evaluateApplicants({ jobId, hrId });
+        
+        if(!serviceResponse.status) {
+            return res.status(400).json(errorResponse(serviceResponse.message));
+        } else {
+            return res.status(200).json(successResponse('Evaluation completed successfully', serviceResponse.data));
+        }
+
+    } catch (error) {
+        res.status(500).json(errorResponse('An error occurred while evaluating applicants for this job'));
     }
 }

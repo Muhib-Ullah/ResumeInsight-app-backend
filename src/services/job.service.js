@@ -12,8 +12,7 @@ export const createJobService = async (jobData) => {
             title: jobData.title,
             description: jobData.description,
             deadline: jobData.deadline,
-            hrId: jobData.hrId,
-            createdAt: new Date()
+            hrId: jobData.hrId
         }
     });
 
@@ -30,7 +29,7 @@ export const getAllJobsService = async (hrData) => {
 }
 
 export const getJobByIdService = async (jobData) => {
-    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: true }});
+    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: { orderBy: { matchScore: 'desc' }}}});
     if(!job) {
         return {status: false, message: 'Job not found or is not active'};
     }
@@ -40,13 +39,13 @@ export const getJobByIdService = async (jobData) => {
 
 export const evaluateApplicants = async (dbData) => {
     const job = await prisma.job.findFirst({ where : { jobId: dbData.jobId, hrId: dbData.hrId }});
-    const applicants = await prisma.applicant.findMany({ where : { jobId : dbData.jobId, matchScore: null }});
-
     if(!job) { return {status: false, message: "Job not found"} }
+
+    const applicants = await prisma.applicant.findMany({ where : { jobId : dbData.jobId, matchScore: null }});
     if(applicants.length == 0) { return {status: false, message: "No applicants to evaluate for this job"} }
 
     const evaluatedApplicants = await Promise.all(
-        applicants.map((applicant) => {
+        applicants.map(async (applicant) => {
             const evaluateServiceResponse = await evaluateWithGroq(applicant.resumeText, job.description);
             if(!evaluateServiceResponse.status) { return applicant }
 

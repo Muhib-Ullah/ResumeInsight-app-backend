@@ -13,8 +13,7 @@ export const registerUserService = async (userData) => {
         data: {
         email : userData.email,  
         name: userData.name,
-        password: hashedPassword,
-        createdAt: new Date()
+        password: hashedPassword
         }
     });
     

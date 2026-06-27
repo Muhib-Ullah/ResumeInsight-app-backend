@@ -41,11 +41,12 @@ export const evaluateWithGroq = async (resumeText, jobDescription) => {;
 
     try {
         const parsedContent = JSON.parse(response.choices[0].message.content);
-        if(!parsedContent.matchScore || !parsedContent.missingSkills || !parsedContent.strengths || !parsedContent.recommendations || !parsedContent.summary) {
+        if(parsedContent.matchScore === undefined || parsedContent.matchScore === null || !parsedContent.missingSkills || 
+        !parsedContent.strengths || !parsedContent.recommendations || !parsedContent.summary) {
             return { status: false, message: "Incomplete response from Groq API" };
         }
         return { status: true, data: parsedContent };             
     } catch (error) {
-        throw new Error("Failed to parse Groq API response as JSON");
+        return { status: false, message: "Failed to parse Groq API response as JSON" };
     }
 }
