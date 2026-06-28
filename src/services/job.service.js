@@ -6,22 +6,41 @@ export const createJobService = async (jobData) => {
     if (existingJob) {
         return {status: false, message: 'Active job listing with the same title already exists for this HR'};
     }
-
+    const formatted_deadline = new Date(jobData.deadline + 'T00:00:00.000Z');
     const newJob = await prisma.job.create({
         data: {
             title: jobData.title,
             description: jobData.description,
-            deadline: jobData.deadline,
+            deadline: formatted_deadline,
             hrId: jobData.hrId
+        },
+        select: {
+            jobId: true,
+            title: true,
+            description: true,
+            deadline: true,
+            status: true,
+            token: true
         }
     });
 
-    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${newJob.token}`;
-    return { status: true, data: { ...newJob, applicant_link } };
+    const { token, ...jobWithoutToken } = newJob;
+    const applicant_link = `${process.env.APPLY_BASE_URL}/api/apply/${token}`;
+    return { status: true, data: { ...jobWithoutToken, applicant_link } };
 }
 
 export const getAllJobsService = async (hrData) => {
-    const jobs = await prisma.job.findMany({ where: { status: 'open', hrId: hrData.hrId }, orderBy: { createdAt: 'desc' }});
+    const jobs = await prisma.job.findMany({ where: { status: 'open', hrId: hrData.hrId }, 
+        orderBy: { createdAt: 'desc' },
+        select: {
+            jobId: true,
+            title: true,
+            description: true,
+            deadline: true,
+            status: true
+        }
+    });
+
     if(!jobs || jobs.length === 0) {
         return {status: false, message: 'No active job listings found for this HR'};
     }
@@ -29,12 +48,21 @@ export const getAllJobsService = async (hrData) => {
 }
 
 export const getJobByIdService = async (jobData) => {
-    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, include: { applicants: { orderBy: { matchScore: 'desc' }}}});
+    const job = await prisma.job.findFirst({ where: { jobId: jobData.jobId, hrId: jobData.hrId }, 
+        select: { title: true, description: true, deadline: true, status: true, token: true,
+        applicants: {
+            orderBy: { matchScore: 'desc' },
+            select: { applicantId: true, name: true, email: true, phone: true, matchScore: true, evaluation: true }
+        }}
+    });
+
     if(!job) {
         return {status: false, message: 'Job not found or is not active'};
     }
-    const applicant_link = `${process.env.APPLY_BASE_URL}/apply/${job.token}`; 
-    return { status: true, data: { ...job, applicant_link } };
+
+    const { token, ...jobWithoutToken } = job;
+    const applicant_link = `${process.env.APPLY_BASE_URL}/api/apply/${token}`;
+    return { status: true, data: { ...jobWithoutToken, applicant_link } };
 }
 
 export const evaluateApplicants = async (dbData) => {
@@ -53,6 +81,14 @@ export const evaluateApplicants = async (dbData) => {
                 data: {
                     matchScore: evaluateServiceResponse.data.matchScore,
                     evaluation: evaluateServiceResponse.data
+                },
+                select: {
+                    applicantId: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    matchScore: true,
+                    evaluation: true
                 }
             });
         })

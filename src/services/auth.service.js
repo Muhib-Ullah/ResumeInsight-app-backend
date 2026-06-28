@@ -14,6 +14,11 @@ export const registerUserService = async (userData) => {
         email : userData.email,  
         name: userData.name,
         password: hashedPassword
+        },
+        select: {
+            hrId: true,
+            name: true,
+            email: true
         }
     });
     

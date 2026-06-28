@@ -45,6 +45,12 @@ export const applyForJobService = async (applicantData) => {
                 phone: applicantData.phone,
                 resumeText: applicantData.resume_text,
                 jobId: job.jobId
+            },
+            select: {
+                applicantId: true,
+                name: true,
+                email: true,
+                phone: true
             }
         });
 

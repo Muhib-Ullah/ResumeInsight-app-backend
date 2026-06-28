@@ -14,6 +14,7 @@ export const createJob = async (req, res) => {
                 return res.status(201).json(successResponse('Job created successfully', serviceResponse.data));
             }
         } catch (error) {
+            console.error(error)
         res.status(500).json(errorResponse('An error occurred while creating the job'));
     }
 };
@@ -45,6 +46,7 @@ export const getJobById = async (req, res) => {
             return res.status(200).json(successResponse('Job fetched successfully', serviceResponse.data));
         }
     } catch (error) {
+        console.error(error);
         res.status(500).json(errorResponse('An error occurred while fetching the job'));
     }
 }
