@@ -29,6 +29,53 @@ export const createJobService = async (jobData) => {
     return { status: true, data: { ...jobWithoutToken, applicant_link } };
 }
 
+export const updateJobService = async (jobData) => {
+    const job = await prisma.job.findFirst({ where : {jobId: jobData.jobId, hrId: jobData.hrId }});
+    if(!job) {
+        return {status: false, message: 'Invalid Job ID'};
+    }
+    const formatted_deadline = new Date(jobData.deadline + 'T00:00:00.000Z');
+    const updatedJob = await prisma.job.update({
+        where: {jobId: jobData.jobId},
+        data: {
+            title: jobData.title,
+            description: jobData.description,
+            deadline: formatted_deadline
+        },
+        select: {
+            jobId: true,
+            title: true,
+            description: true,
+            deadline: true,
+            status: true
+        }
+    });
+    
+    return {status: true, data: updatedJob}; 
+}
+
+export const cancelJobService = async (dbData) => {
+    const job = await prisma.job.findFirst({where : {jobId: dbData.jobId, hrId: dbData.hrId}});
+    if(!job) {
+        return { status: false, message: 'Invalid Job ID'};
+    }
+    const updatedJob = await prisma.job.update({
+        where: {jobId: dbData.jobId},
+        data: {
+            status: 'cancelled'
+        },
+        select: {
+            jobId: true,
+            title: true,
+            description: true,
+            deadline: true,
+            status: true
+        }
+    });
+
+    return { status: true, data: updatedJob };
+};
+
 export const getAllJobsService = async (hrData) => {
     const jobs = await prisma.job.findMany({ where: { status: 'open', hrId: hrData.hrId }, 
         orderBy: { createdAt: 'desc' },
