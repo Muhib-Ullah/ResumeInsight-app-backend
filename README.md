@@ -106,10 +106,12 @@ npm start
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/api/jobs/create` | JWT | Create a job posting |
-| GET | `/api/jobs/all` | JWT | Get all HR's job postings |
-| GET | `/api/jobs/:jobId` | JWT | Get job with all applicants |
-| POST | `/api/jobs/:jobId/evaluate` | JWT | Trigger batch AI evaluation |
+| GET | `/api/job/all` | JWT | Get all HR's job postings |
+| GET | `/api/job/:jobId` | JWT | Get job with all applicants |
+| POST | `/api/job/create` | JWT | Create a job posting |
+| POST | `/api/job/:jobId/evaluate` | JWT | Trigger batch AI evaluation |
+| PUT | `/api/job/:jobId/update` | JWT | Update job postings |
+| PUT | `/api/job/:jobId/cancel` | JWT | Mark job postings as cancelled |
 
 ### Apply (Public)
 
